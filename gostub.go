@@ -24,11 +24,6 @@ func validateTypes(varType reflect.Type, stubType reflect.Type) error {
 	if varType.Kind() != reflect.Ptr {
 		return fmt.Errorf("variable to stub is expected to be a pointer (*%v), got %v", varType, stubType)
 	}
-
-	if varType.Elem() != stubType {
-		return fmt.Errorf("variable and stub have mismatched types: %v != *%v", varType, stubType)
-	}
-
 	return nil
 }
 

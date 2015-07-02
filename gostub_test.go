@@ -108,7 +108,7 @@ func TestVarNotPtr(t *testing.T) {
 }
 
 func TestTypeMismatch(t *testing.T) {
-	defer expectPanic(t, "Stub wrong type", "mismatched types")
+	defer expectPanic(t, "Stub wrong type", "not assignable")
 	Stub(&v1, "test")
 }
 
