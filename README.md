@@ -1,6 +1,13 @@
 # gostub
---
-    import "github.com/prashantv/gostub"
+
+[![GoDoc](https://godoc.org/github.com/prashantv/gostub?status.svg)](https://godoc.org/github.com/prashantv/gostub)
+
+gostub is a library to make stubbing in unit tests easy.
+
+## Getting started
+
+Import the following package:
+`github.com/prashantv/gostub`
 
 Package gostub is used for stubbing variables in tests, and resetting the
 original value once the test has been run.
@@ -54,42 +61,3 @@ stubs or add more stubs during test execution:
 
 The Stub call must be passed a pointer to the variable that should be stubbed,
 and a value which can be assigned to the variable.
-
-## Usage
-
-#### type Stubs
-
-```go
-type Stubs struct {
-}
-```
-
-Stubs represents a set of stubbed variables that can be reset.
-
-#### func  Stub
-
-```go
-func Stub(varPtr interface{}, stub interface{}) *Stubs
-```
-Stub creates a new set of stubs and
-
-#### func (*Stubs) Reset
-
-```go
-func (s *Stubs) Reset()
-```
-Reset resets all stubbed variables back to their original values.
-
-#### func (*Stubs) ResetSingle
-
-```go
-func (s *Stubs) ResetSingle(varPtr interface{})
-```
-ResetSingle resets a single stubbed variable back to the original value.
-
-#### func (*Stubs) Stub
-
-```go
-func (s *Stubs) Stub(varPtr interface{}, stub interface{}) *Stubs
-```
-Stub takes a pointer to a variable to be stubbed and replaces it with stub.
