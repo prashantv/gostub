@@ -1,5 +1,7 @@
 # gostub
 
+[![Build Status](https://travis-ci.org/prashantv/gostub.svg?branch=master)](https://travis-ci.org/prashantv/gostub)
+
 [![GoDoc](https://godoc.org/github.com/prashantv/gostub?status.svg)](https://godoc.org/github.com/prashantv/gostub)
 
 gostub is a library to make stubbing in unit tests easy.
