@@ -1,10 +1,6 @@
 package gostub
 
-import (
-	"fmt"
-	"strings"
-	"testing"
-)
+import "testing"
 
 // Variables used in stubbing.
 var v1, v2, v3, v4 int
@@ -110,22 +106,4 @@ func TestVarNotPtr(t *testing.T) {
 func TestTypeMismatch(t *testing.T) {
 	defer expectPanic(t, "Stub wrong type", "not assignable")
 	Stub(&v1, "test")
-}
-
-func expectVal(t *testing.T, expected int, got int) {
-	if expected != got {
-		t.Errorf("expected %v but got %v", got, expected)
-	}
-}
-
-func expectPanic(t *testing.T, msg string, expectedPanic string) {
-	if r := recover(); r != nil {
-		got := fmt.Sprint(r)
-		if !strings.Contains(got, expectedPanic) {
-			t.Errorf("panic message expected to contain %q, got %v", expectedPanic, got)
-		}
-		return
-	}
-
-	t.Errorf("%v expected to panic", msg)
 }

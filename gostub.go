@@ -1,12 +1,22 @@
 package gostub
 
-import "reflect"
+import (
+	"fmt"
+	"reflect"
+)
 
 // Stub replaces the value stored at varToStub with stubVal.
 // varToStub must be a pointer to the variable. stubVal should have a type
 // that is assignable to the variable.
 func Stub(varToStub interface{}, stubVal interface{}) *Stubs {
 	return newStub().Stub(varToStub, stubVal)
+}
+
+// StubFunc replaces a function variable with a function that returns stubVal.
+// funcVarToStub must be a pointer to a function variable. stubVal should
+// have a return type that is assignable
+func StubFunc(funcVarToStub interface{}, stubVal ...interface{}) *Stubs {
+	return newStub().StubFunc(funcVarToStub, stubVal...)
 }
 
 // Stubs represents a set of stubbed variables that can be reset.
@@ -39,6 +49,49 @@ func (s *Stubs) Stub(varToStub interface{}, stubVal interface{}) *Stubs {
 	// *varToStub = stubVal
 	v.Elem().Set(stub)
 	return s
+}
+
+// StubFunc replaces a function variable with a function that returns stubVal.
+// funcVarToStub must be a pointer to a function variable. stubVal should
+// have a return type that is assignable
+func (s *Stubs) StubFunc(funcVarToStub interface{}, stubVal ...interface{}) *Stubs {
+	funcPtrType := reflect.TypeOf(funcVarToStub)
+	if funcPtrType.Kind() != reflect.Ptr ||
+		funcPtrType.Elem().Kind() != reflect.Func {
+		panic("func variable to stub must be a pointer to a function")
+	}
+	funcType := funcPtrType.Elem()
+	if funcType.NumOut() != len(stubVal) {
+		panic(fmt.Sprintf("func type has %v return values, but only %v stub values provided",
+			funcType.NumOut(), len(stubVal)))
+	}
+
+	return Stub(funcVarToStub, FuncReturning(funcPtrType.Elem(), stubVal...).Interface())
+}
+
+// FuncReturning creates a new function with type funcType that returns results.
+func FuncReturning(funcType reflect.Type, results ...interface{}) reflect.Value {
+	var resultValues []reflect.Value
+	for i, r := range results {
+		var retValue reflect.Value
+		if r == nil {
+			// We can't use reflect.ValueOf(nil), so we need to create the zero value.
+			retValue = reflect.Zero(funcType.Out(i))
+		} else {
+			// We cannot simply use reflect.ValueOf(r) as that does not work for
+			// interface types, as reflect.ValueOf receives the dynamic type, which
+			// is the underlying type. e.g. for an error, it may *errors.errorString.
+			// Instead, we make the return type's expected interface value using
+			// reflect.New, and set the data to the passed in value.
+			tempV := reflect.New(funcType.Out(i))
+			tempV.Elem().Set(reflect.ValueOf(r))
+			retValue = tempV.Elem()
+		}
+		resultValues = append(resultValues, retValue)
+	}
+	return reflect.MakeFunc(funcType, func(_ []reflect.Value) []reflect.Value {
+		return resultValues
+	})
 }
 
 // Reset resets all stubbed variables back to their original values.
