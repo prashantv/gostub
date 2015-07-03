@@ -1,13 +1,12 @@
 package gostub
 
-import (
-	"fmt"
-	"reflect"
-)
+import "reflect"
 
-// Stub stores the original value at varPtr and replaces it with stub.
-func Stub(varPtr interface{}, stub interface{}) *Stubs {
-	return newStub().Stub(varPtr, stub)
+// Stub replaces the value stored at varToStub with stubVal.
+// varToStub must be a pointer to the variable. stubVal should have a type
+// that is assignable to the variable.
+func Stub(varToStub interface{}, stubVal interface{}) *Stubs {
+	return newStub().Stub(varToStub, stubVal)
 }
 
 // Stubs represents a set of stubbed variables that can be reset.
@@ -20,21 +19,16 @@ func newStub() *Stubs {
 	return &Stubs{make(map[reflect.Value]reflect.Value)}
 }
 
-func validateTypes(varType reflect.Type, stubType reflect.Type) error {
-	if varType.Kind() != reflect.Ptr {
-		return fmt.Errorf("variable to stub is expected to be a pointer (*%v), got %v", varType, stubType)
-	}
-	return nil
-}
+// Stub replaces the value stored at varToStub with stubVal.
+// varToStub must be a pointer to the variable. stubVal should have a type
+// that is assignable to the variable.
+func (s *Stubs) Stub(varToStub interface{}, stubVal interface{}) *Stubs {
+	v := reflect.ValueOf(varToStub)
+	stub := reflect.ValueOf(stubVal)
 
-// Stub stores the original value at varPtr and replaces it with stub.
-func (s *Stubs) Stub(varPtr interface{}, stub interface{}) *Stubs {
-	v := reflect.ValueOf(varPtr)
-	stubVal := reflect.ValueOf(stub)
-
-	// Ensure varPtr is a pointer to something of type stub.
-	if err := validateTypes(v.Type(), stubVal.Type()); err != nil {
-		panic(err)
+	// Ensure varToStub is a pointer to the variable.
+	if v.Type().Kind() != reflect.Ptr {
+		panic("variable to stub is expected to be a pointer")
 	}
 
 	if _, ok := s.stubs[v]; !ok {
@@ -42,24 +36,25 @@ func (s *Stubs) Stub(varPtr interface{}, stub interface{}) *Stubs {
 		s.stubs[v] = reflect.ValueOf(v.Elem().Interface())
 	}
 
-	v.Elem().Set(stubVal)
+	// *varToStub = stubVal
+	v.Elem().Set(stub)
 	return s
 }
 
 // Reset resets all stubbed variables back to their original values.
 func (s *Stubs) Reset() {
-	for k, v := range s.stubs {
-		k.Elem().Set(v)
+	for v, originalVal := range s.stubs {
+		v.Elem().Set(originalVal)
 	}
 }
 
-// ResetSingle resets a single stubbed variable back to the original value.
-func (s *Stubs) ResetSingle(varPtr interface{}) {
-	varPtrV := reflect.ValueOf(varPtr)
-	v, ok := s.stubs[varPtrV]
+// ResetSingle resets a single stubbed variable back to its original value.
+func (s *Stubs) ResetSingle(varToStub interface{}) {
+	v := reflect.ValueOf(varToStub)
+	originalVal, ok := s.stubs[v]
 	if !ok {
 		panic("cannot reset variable as it has not been stubbed yet")
 	}
 
-	varPtrV.Elem().Set(v)
+	v.Elem().Set(originalVal)
 }

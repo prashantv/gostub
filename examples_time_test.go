@@ -21,7 +21,7 @@ func Example_stubFunctions() {
 	})
 	defer stubs.Reset()
 
-	fmt.Printf("Stubbed: %v\n", GetDay())
+	fmt.Println("Stubbed:", GetDay())
 	// Output:
 	// Stubbed: 2
 }
