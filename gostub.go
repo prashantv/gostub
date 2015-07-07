@@ -13,8 +13,9 @@ func Stub(varToStub interface{}, stubVal interface{}) *Stubs {
 }
 
 // StubFunc replaces a function variable with a function that returns stubVal.
-// funcVarToStub must be a pointer to a function variable. stubVal should
-// have a return type that is assignable
+// funcVarToStub must be a pointer to a function variable. If the function
+// returns multiple values, then multiple values should be passed to stubFunc.
+// The values must match be assignable to the return values' types.
 func StubFunc(funcVarToStub interface{}, stubVal ...interface{}) *Stubs {
 	return newStub().StubFunc(funcVarToStub, stubVal...)
 }
@@ -52,8 +53,9 @@ func (s *Stubs) Stub(varToStub interface{}, stubVal interface{}) *Stubs {
 }
 
 // StubFunc replaces a function variable with a function that returns stubVal.
-// funcVarToStub must be a pointer to a function variable. stubVal should
-// have a return type that is assignable
+// funcVarToStub must be a pointer to a function variable. If the function
+// returns multiple values, then multiple values should be passed to stubFunc.
+// The values must match be assignable to the return values' types.
 func (s *Stubs) StubFunc(funcVarToStub interface{}, stubVal ...interface{}) *Stubs {
 	funcPtrType := reflect.TypeOf(funcVarToStub)
 	if funcPtrType.Kind() != reflect.Ptr ||
