@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/prashantv/gostub.svg?branch=master)](https://travis-ci.org/prashantv/gostub)
 [![GoDoc](https://godoc.org/github.com/prashantv/gostub?status.svg)](https://godoc.org/github.com/prashantv/gostub)
+[![Coverage Status](https://coveralls.io/repos/prashantv/gostub/badge.svg?branch=coveralls&service=github)](https://coveralls.io/github/prashantv/gostub?branch=coveralls)
 
 gostub is a library to make stubbing in unit tests easy.
 
