@@ -74,3 +74,5 @@ The Stub call must be passed a pointer to the variable that should be stubbed,
 and a value which can be assigned to the variable.
 */
 package gostub
+
+//go:generate godocdown -template README.md.tmpl --output=README.md
