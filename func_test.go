@@ -54,3 +54,41 @@ func TestStubReturnFunc(t *testing.T) {
 	})
 	expectVal(t, errInception, retFunc()())
 }
+
+func TestStubFuncFail(t *testing.T) {
+	var osHostname = os.Hostname
+	var s string
+
+	tests := []struct {
+		desc     string
+		toStub   interface{}
+		stubVals []interface{}
+		wantErr  string
+	}{
+		{
+			desc:     "toStub is not a function",
+			toStub:   &s,
+			stubVals: []interface{}{"fakehost", nil},
+			wantErr:  "to stub must be a pointer to a function",
+		},
+		{
+			desc:     "toStub is not a pointer",
+			toStub:   osHostname,
+			stubVals: []interface{}{"fakehost", nil},
+			wantErr:  "to stub must be a pointer to a function",
+		},
+		{
+			desc:     "wrong number of stubVals",
+			toStub:   &osHostname,
+			stubVals: []interface{}{"fakehost"},
+			wantErr:  "func type has 2 return values, but only 1 stub values provided",
+		},
+	}
+
+	for _, tt := range tests {
+		func() {
+			defer expectPanic(t, tt.desc, tt.wantErr)
+			StubFunc(tt.toStub, tt.stubVals...)
+		}()
+	}
+}
