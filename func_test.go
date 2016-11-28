@@ -92,3 +92,27 @@ func TestStubFuncFail(t *testing.T) {
 		}()
 	}
 }
+
+func TestMultipleStubFuncs(t *testing.T) {
+	var f1 = func() int {
+		return 100
+	}
+	var f2 = func() int {
+		return 200
+	}
+	var f3 = func() int {
+		return 300
+	}
+
+	stubs := StubFunc(&f1, 1).StubFunc(&f2, 2)
+	expectVal(t, f1(), 1)
+	expectVal(t, f2(), 2)
+
+	stubs.StubFunc(&f3, 3)
+	expectVal(t, f3(), 3)
+
+	stubs.Reset()
+	expectVal(t, f1(), 100)
+	expectVal(t, f2(), 200)
+	expectVal(t, f3(), 300)
+}
