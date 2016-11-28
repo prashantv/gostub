@@ -68,7 +68,7 @@ func (s *Stubs) StubFunc(funcVarToStub interface{}, stubVal ...interface{}) *Stu
 			funcType.NumOut(), len(stubVal)))
 	}
 
-	return Stub(funcVarToStub, FuncReturning(funcPtrType.Elem(), stubVal...).Interface())
+	return s.Stub(funcVarToStub, FuncReturning(funcPtrType.Elem(), stubVal...).Interface())
 }
 
 // FuncReturning creates a new function with type funcType that returns results.
