@@ -9,7 +9,7 @@ import (
 // varToStub must be a pointer to the variable. stubVal should have a type
 // that is assignable to the variable.
 func Stub(varToStub interface{}, stubVal interface{}) *Stubs {
-	return newStub().Stub(varToStub, stubVal)
+	return New().Stub(varToStub, stubVal)
 }
 
 // StubFunc replaces a function variable with a function that returns stubVal.
@@ -17,17 +17,27 @@ func Stub(varToStub interface{}, stubVal interface{}) *Stubs {
 // returns multiple values, then multiple values should be passed to stubFunc.
 // The values must match be assignable to the return values' types.
 func StubFunc(funcVarToStub interface{}, stubVal ...interface{}) *Stubs {
-	return newStub().StubFunc(funcVarToStub, stubVal...)
+	return New().StubFunc(funcVarToStub, stubVal...)
+}
+
+type envVal struct {
+	val string
+	ok  bool
 }
 
 // Stubs represents a set of stubbed variables that can be reset.
 type Stubs struct {
 	// stubs is a map from the variable pointer (being stubbed) to the original value.
-	stubs map[reflect.Value]reflect.Value
+	stubs   map[reflect.Value]reflect.Value
+	origEnv map[string]envVal
 }
 
-func newStub() *Stubs {
-	return &Stubs{make(map[reflect.Value]reflect.Value)}
+// New returns Stubs that can be used to stub out variables.
+func New() *Stubs {
+	return &Stubs{
+		stubs:   make(map[reflect.Value]reflect.Value),
+		origEnv: make(map[string]envVal),
+	}
 }
 
 // Stub replaces the value stored at varToStub with stubVal.
@@ -101,6 +111,7 @@ func (s *Stubs) Reset() {
 	for v, originalVal := range s.stubs {
 		v.Elem().Set(originalVal)
 	}
+	s.resetEnv()
 }
 
 // ResetSingle resets a single stubbed variable back to its original value.
