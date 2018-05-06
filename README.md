@@ -5,6 +5,10 @@
 [![Coverage Status](https://coveralls.io/repos/github/prashantv/gostub/badge.svg?branch=master)](https://coveralls.io/github/prashantv/gostub?branch=master)
 
 gostub is a library to make stubbing in unit tests easy.
+the purpose of this fork is to enhance functions of gostub, add new API func StubFuncSeq and method StubFuncSeq 
+
+https://www.jianshu.com/p/70a93a9ed186
+https://www.jianshu.com/p/53a531852619
 
 ## Getting started
 
