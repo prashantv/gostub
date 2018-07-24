@@ -4,16 +4,30 @@
 [![GoDoc](https://godoc.org/github.com/prashantv/gostub?status.svg)](https://godoc.org/github.com/prashantv/gostub)
 [![Coverage Status](https://coveralls.io/repos/github/prashantv/gostub/badge.svg?branch=master)](https://coveralls.io/github/prashantv/gostub?branch=master)
 
-gostub is a library to make stubbing in unit tests easy.
-the purpose of this fork is to enhance functions of gostub, add new API func StubFuncSeq and method StubFuncSeq 
+The purpose of this fork is to extend APIs of gostub, as follows:
 
-https://www.jianshu.com/p/70a93a9ed186
+```go
+type Values []interface{}
+type Output struct {
+    StubVals Values
+    Times int
+}
+
+func StubFuncSeq(funcVarToStub interface{}, outputs []Output) *Stubs
+
+func (s *Stubs) StubFuncSeq(funcVarToStub interface{}, outputs []Output) *Stubs
+
+````
+
+gostub is a library to make stubbing in unit tests easy. The secondary development practice for gostub is descriped details in this chinese article:
+
 https://www.jianshu.com/p/53a531852619
+
 
 ## Getting started
 
 Import the following package:
-`github.com/prashantv/gostub`
+`github.com/agiledragon/gostub`
 
 Click [here](https://godoc.org/github.com/prashantv/gostub) to read the [API documentation](https://godoc.org/github.com/prashantv/gostub).
 
@@ -116,3 +130,51 @@ stubs.Stub(&b2, 6)
 
 The Stub call must be passed a pointer to the variable that should be stubbed,
 and a value which can be assigned to the variable.
+
+Suppose we read the database 3 times in a function f, such as calling the function 
+ReadLeaf 3 times, that is, reading 3 different values through 3 different urls.
+ReadLeaf is defined in the db package, examples are as follows:
+
+```go
+var ReadLeaf = func(url string)(string, error) {
+    ...
+}
+```
+
+The static function StubFuncSeq is used:
+```go
+info1 := "..."
+info2 := "..."
+info3 := "..."
+outputs := []Output{
+    Output{StubVals: Values{info1, nil}},
+    Output{StubVals: Values{info2, nil}},
+    Output{StubVals: Values{info3, nil}},
+}
+stubs := StubFuncSeq(&db.ReadLeaf, outputs)
+defer stubs.Reset()
+...
+```
+Times default value is 1
+
+Suppose we do a batch operation in a function f, such as calling the Apply function 
+5 times in a loop, the first 4 operations are successful but the 5th operation fails.
+
+
+```go
+var Apply = func(id string) error {
+    ...
+｝
+```
+
+When the stubs object has existed, the member method StubFuncSeq is used:
+
+```go
+outputs := []Output{
+    Output{StubVals: Values{nil}, Times: 4},
+    Output{StubVals: Values{ErrAny}},
+}
+stubs.StubFuncSeq(&resource.Apply, outputs)
+```
+
+
