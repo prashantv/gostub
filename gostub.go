@@ -20,6 +20,16 @@ func StubFunc(funcVarToStub interface{}, stubVal ...interface{}) *Stubs {
 	return New().StubFunc(funcVarToStub, stubVal...)
 }
 
+type Values []interface{}
+type Output struct {
+	StubVals Values
+	Times int
+}
+
+func StubFuncSeq(funcVarToStub interface{}, outputs []Output) *Stubs {
+	return New().StubFuncSeq(funcVarToStub, outputs)
+}
+
 type envVal struct {
 	val string
 	ok  bool
@@ -79,6 +89,65 @@ func (s *Stubs) StubFunc(funcVarToStub interface{}, stubVal ...interface{}) *Stu
 	}
 
 	return s.Stub(funcVarToStub, FuncReturning(funcPtrType.Elem(), stubVal...).Interface())
+}
+
+func (s *Stubs) StubFuncSeq(funcVarToStub interface{}, outputs []Output) *Stubs {
+	funcPtrType := reflect.TypeOf(funcVarToStub)
+	if funcPtrType.Kind() != reflect.Ptr ||
+		funcPtrType.Elem().Kind() != reflect.Func {
+		panic("func variable to stub must be a pointer to a function")
+	}
+	funcType := funcPtrType.Elem()
+	if funcType.NumOut() != len(outputs[0].StubVals) {
+		panic(fmt.Sprintf("func type has %v return values, but only %v stub values provided",
+			funcType.NumOut(), len(outputs[0].StubVals)))
+	}
+
+	slice := make([]Values, 0)
+	for _, output := range outputs {
+		t := 0
+		if output.Times <= 1 {
+			t = 1
+		} else {
+			t = output.Times
+		}
+		for j := 0; j < t; j++ {
+			slice = append(slice, output.StubVals)
+		}
+	}
+
+	i := 0
+	len := len(slice)
+	stubVal := reflect.MakeFunc(funcType, func(_ []reflect.Value) []reflect.Value {
+		if i < len {
+			i++
+			return getResultValues(funcPtrType.Elem(), slice[i - 1]...)
+		}
+		panic("output seq is less than call seq!")
+	})
+	return s.Stub(funcVarToStub, stubVal.Interface())
+}
+
+func getResultValues(funcType reflect.Type, results ...interface{}) []reflect.Value {
+	var resultValues []reflect.Value
+	for i, r := range results {
+		var retValue reflect.Value
+		if r == nil {
+			// We can't use reflect.ValueOf(nil), so we need to create the zero value.
+			retValue = reflect.Zero(funcType.Out(i))
+		} else {
+			// We cannot simply use reflect.ValueOf(r) as that does not work for
+			// interface types, as reflect.ValueOf receives the dynamic type, which
+			// is the underlying type. e.g. for an error, it may *errors.errorString.
+			// Instead, we make the return type's expected interface value using
+			// reflect.New, and set the data to the passed in value.
+			tempV := reflect.New(funcType.Out(i))
+			tempV.Elem().Set(reflect.ValueOf(r))
+			retValue = tempV.Elem()
+		}
+		resultValues = append(resultValues, retValue)
+	}
+	return resultValues
 }
 
 // FuncReturning creates a new function with type funcType that returns results.
