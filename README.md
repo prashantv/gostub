@@ -25,7 +25,7 @@ static variable, use the Stub function:
 var configFile = "config.json"
 
 func GetConfig() ([]byte, error) {
-  return ioutil.ReadFile(configFile)
+    return ioutil.ReadFile(configFile)
 }
 
 // Test code
@@ -42,7 +42,7 @@ the static function, and using that local variable to call the static function:
 var timeNow = time.Now
 
 func GetDate() int {
-	return timeNow().Day()
+    return timeNow().Day()
 }
 ```
 
@@ -50,7 +50,7 @@ You can test this by using gostub to stub the timeNow variable:
 
 ```go
 stubs := gostub.Stub(&timeNow, func() time.Time {
-  return time.Date(2015, 6, 1, 0, 0, 0, 0, time.UTC)
+    return time.Date(2015, 6, 1, 0, 0, 0, 0, time.UTC)
 })
 defer stubs.Reset()
 
@@ -73,6 +73,14 @@ var osHostname = osHostname
 
 // Test code:
 stubs := gostub.StubFunc(&osHostname, "fakehost", nil)
+defer stubs.Reset()
+```
+StubEnv can be used to setup environment variables for tests, and the
+environment values are reset to their original values upon Reset:
+
+```go
+stubs := gostub.New()
+stubs.SetEnv("GOSTUB_VAR", "test_value")
 defer stubs.Reset()
 ```
 
