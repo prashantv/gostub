@@ -4,6 +4,7 @@ original value once the test has been run.
 
 This can be used to stub static variables as well as static functions. To
 stub a static variable, use the Stub function:
+
   var configFile = "config.json"
 
   func GetConfig() ([]byte, error) {
@@ -46,6 +47,13 @@ StubFunc can also be used to stub functions that return multiple values:
   stubs := gostub.StubFunc(&osHostname, "fakehost", nil)
   defer stubs.Reset()
 
+StubEnv can be used to setup environment variables for tests, and the environment
+values are reset to their original values upon Reset:
+
+  stubs := gostub.New()
+  stubs.SetEnv("GOSTUB_VAR", "test_value")
+  defer stubs.Reset()
+
 The Reset method should be deferred to run at the end of the test to reset
 all stubbed variables back to their original values.
 
@@ -75,4 +83,5 @@ and a value which can be assigned to the variable.
 */
 package gostub
 
+// FIXME: godocdown no longer works with go syntex highlighting.
 //go:generate godocdown -template README.md.tmpl --output=README.md
