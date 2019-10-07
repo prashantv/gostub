@@ -83,5 +83,5 @@ and a value which can be assigned to the variable.
 */
 package gostub
 
-// FIXME: godocdown no longer works with go syntex highlighting.
+// FIXME: godocdown no longer works with go syntax highlighting.
 //go:generate godocdown -template README.md.tmpl --output=README.md
