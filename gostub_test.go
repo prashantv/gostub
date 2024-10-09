@@ -18,12 +18,36 @@ func TestStub(t *testing.T) {
 
 	stubs := Stub(&v1, 1)
 
-	if v1 != 1 {
-		t.Errorf("expected")
-	}
 	expectVal(t, v1, 1)
 	stubs.Reset()
 	expectVal(t, v1, 100)
+}
+
+func TestValue(t *testing.T) {
+	resetVars()
+
+	t.Run("test", func(t *testing.T) {
+		reset1 := Value(t, &v1, 1)
+		reset2 := Value(t, &v2, 2)
+		expectVal(t, v1, 1)
+		expectVal(t, v2, 2)
+		reset1()
+		expectVal(t, v1, 100)
+		expectVal(t, v2, 2)
+		reset2()
+		expectVal(t, v1, 100)
+		expectVal(t, v2, 200)
+
+		Value(t, &v1, 0)
+		Value(t, &v2, 0)
+		Value(t, &v3, 0)
+	})
+
+	t.Run("verify Cleanup", func(t *testing.T) {
+		expectVal(t, v1, 100)
+		expectVal(t, v2, 200)
+		expectVal(t, v3, 300)
+	})
 }
 
 func TestRestub(t *testing.T) {

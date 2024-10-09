@@ -8,6 +8,7 @@ import (
 // Stub replaces the value stored at varToStub with stubVal.
 // varToStub must be a pointer to the variable. stubVal should have a type
 // that is assignable to the variable.
+// When stubbing a single value, prefer `Value`.
 func Stub(varToStub interface{}, stubVal interface{}) *Stubs {
 	return New().Stub(varToStub, stubVal)
 }
