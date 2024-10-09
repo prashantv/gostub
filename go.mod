@@ -1,6 +1,6 @@
 module github.com/prashantv/gostub
 
-go 1.17
+go 1.23.2
 
 require github.com/stretchr/testify v1.7.0
 
