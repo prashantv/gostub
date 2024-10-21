@@ -34,11 +34,21 @@ type Stubs struct {
 }
 
 // New returns Stubs that can be used to stub out variables.
+//
+// Prefer `NewT` when using in tests, as it automatically resets.
 func New() *Stubs {
 	return &Stubs{
 		stubs:   make(map[reflect.Value]reflect.Value),
 		origEnv: make(map[string]envVal),
 	}
+}
+
+// NewT returns stubs that can be used to stub out variable, and automatically
+// resets stubs at the end of the test using `t.Cleanup`.
+func NewT(t TestingT) *Stubs {
+	stubs := New()
+	t.Cleanup(stubs.Reset)
+	return stubs
 }
 
 // Stub replaces the value stored at varToStub with stubVal.

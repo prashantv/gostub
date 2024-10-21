@@ -23,6 +23,15 @@ func TestStub(t *testing.T) {
 	expectVal(t, v1, 100)
 }
 
+func TestNewT(t *testing.T) {
+	resetVars()
+	t.Run("inner", func(t *testing.T) {
+		// No need for reset.
+		NewT(t).Stub(&v1, 1)
+	})
+	expectVal(t, 100, v1)
+}
+
 func TestValue(t *testing.T) {
 	resetVars()
 
